@@ -68,7 +68,7 @@ import { questions } from "../constants";
           opinión, donde 5 es el valor más alto y 1 el valor más bajo.
         </p>
         <div
-          class="grid grid-cols-[3fr_4fr] gap-x-5 items-center text-xs text-gray-700 font-medium"
+          class="md:grid grid-cols-[3fr_4fr] gap-x-5 items-center text-xs text-gray-700 font-medium"
         >
           <div></div>
           <div class="mt-2 md:mt-0 grid grid-cols-5 gap-2 md:gap-3">
@@ -95,7 +95,7 @@ import { questions } from "../constants";
         {
           questions.map((label, i) => (
             <fieldset class="py-4">
-              <div class="grid grid-cols-[3fr_4fr] gap-x-5 items-center">
+              <div class="md:grid grid-cols-[3fr_4fr] gap-x-5 items-center">
                 <legend class="text-sm text-gray-800">
                   <span class="text-gray-500 mr-2">{i + 1}.</span>
                   {label} <span class="text-red-600">*</span>
