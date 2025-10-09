@@ -102,7 +102,7 @@ import { questions } from "../constants";
                 </legend>
                 <div class="mt-2 md:mt-0 grid grid-cols-5 gap-2 md:gap-3">
                   {[5, 4, 3, 2, 1].map((val) => (
-                    <label class="relative flex items-center justify-center h-11 rounded-xl border cursor-pointer select-none transition border-gray-300 hover:border-gray-400 peer-checked:bg-gray-900 peer-checked:text-white">
+                    <label class="relative flex items-center justify-center h-11 rounded-xl border cursor-pointer select-none border-gray-300 hover:border-gray-400">
                       <input
                         type="radio"
                         name={`q${i + 1}`}
@@ -110,8 +110,8 @@ import { questions } from "../constants";
                         required
                         class="sr-only peer"
                       />
-                      <span class="text-sm font-medium">{val}</span>
-                      <span class="absolute inset-0 rounded-xl bg-gray-900 opacity-0 peer-checked:opacity-10 transition" />
+                      <span class="absolute inset-0 text-sm font-medium z-20 grid place-items-center peer-checked:text-white">{val}</span>
+                      <span class="absolute z-10 inset-0 rounded-xl bg-[#10466a] opacity-0 peer-checked:opacity-90 transition" />
                     </label>
                   ))}
                 </div>
