@@ -1,6 +1,6 @@
 ---
-import Layout from "../layouts/layout.astro";
-import { questions } from "../constants";
+import Layout from '../layouts/layout.astro'
+import { questions } from '../constants';
 ---
 
 <Layout title="Encuesta de Satisfacción">
@@ -164,15 +164,15 @@ import { questions } from "../constants";
   </main>
 
   <script>
-    document?.getElementById("survey-form")?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const form = e.target as HTMLFormElement;
-      const data = Object.fromEntries(new FormData(form).entries());
-      console.log("Demo payload", data);
-      document?.getElementById("demo-msg")?.classList.remove("hidden");
-      alert(
-        "Formulario de ejemplo enviado. Revisa la consola del navegador para ver los datos.",
-      );
-    });
+    document?.getElementById('survey-form')?.addEventListener('submit', (e) => {
+      e.preventDefault()
+  const form = e.target as HTMLFormElement
+  const data = Object.fromEntries(new FormData(form).entries())
+  console.log('Demo payload', data)
+  document?.getElementById('demo-msg')?.classList.remove('hidden')
+  alert(
+        'Formulario de ejemplo enviado. Revisa la consola del navegador para ver los datos.',
+      )
+})
   </script>
 </Layout>
