@@ -4,6 +4,7 @@ import tseslint from 'typescript-eslint'
 import astro from 'eslint-plugin-astro'
 import astroParser from 'astro-eslint-parser'
 import tsParser from '@typescript-eslint/parser'
+import eslintConfigPrettier from 'eslint-config-prettier'
 
 export default defineConfig(
   js.configs.recommended,
@@ -26,4 +27,5 @@ export default defineConfig(
       },
     },
   },
+  eslintConfigPrettier
 )

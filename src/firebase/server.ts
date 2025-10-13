@@ -23,7 +23,7 @@ const initApp = () => {
   }
   console.info('Loading service account from env.')
   return initializeApp({
-    credential: cert(serviceAccount as ServiceAccount)
+    credential: cert(serviceAccount as ServiceAccount),
   })
 }
 

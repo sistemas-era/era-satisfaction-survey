@@ -1,178 +1,165 @@
 ---
 import Layout from '../layouts/layout.astro'
-import { questions } from '../constants';
+import { questions } from '../constants'
 ---
 
 <Layout title="Encuesta de Satisfacción">
-  <main class="w-full max-w-6xl">
-    <div class="mb-6">
-      <h1 class="text-2xl font-semibold tracking-tight text-center">
-        Encuesta de Satisfacción
-      </h1>
-      <p class="text-gray-600 mt-1 text-center">
-        Para el <strong>ESTUDIO RODRÍGUEZ ANGOBALDO S.A.C.</strong> es importante
-        conocer la opinión de nuestros clientes; por ello elaboramos la presente
-        encuesta de satisfacción, con el objetivo de medir el nivel de compromiso,
-        afianzar el vínculo e identificar oportunidades de mejora para el fortalecimiento
-        de los servicios que ofrecemos.
-      </p>
-      <ul class="text-gray-600 text-sm mt-2 list-disc pl-6">
-        <li>
-          Esperamos se sientan en libertad de expresarse y evaluar desde su
-          experiencia.
-        </li>
-        <li>La información que nos proporcione es confidencial.</li>
-        <li>Gracias por su atención y por confiar en nosotros.</li>
-      </ul>
-    </div>
-
-    <form
-      id="survey-form"
-      class="bg-white shadow-sm rounded-2xl p-6 border border-gray-100"
-    >
-      <section class="grid md:grid-cols-2 gap-4">
-        <div class="flex flex-col gap-1">
-          <label for="company" class="text-sm font-medium"
-            >Cliente <span class="text-red-600">*</span></label
-          >
-          <input
-            id="company"
-            name="company"
-            type="text"
-            placeholder="Ej: Acme S.A."
-            required
-            class="h-11 px-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-200"
-          />
-        </div>
-        <div class="flex flex-col gap-1">
-          <label for="person" class="text-sm font-medium"
-            >Nombre del encuestado <span class="text-red-600">*</span></label
-          >
-          <input
-            id="person"
-            name="person"
-            type="text"
-            placeholder="Ej: María Pérez"
-            required
-            class="h-11 px-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-200"
-          />
-        </div>
-      </section>
-
-      <section class="mt-6">
-        <h2 class="text-sm font-semibold text-center">
-          EVALUACIÓN DE ASPECTOS DEL SERVICIO
-        </h2>
-        <p class="text-xs text-gray-600 text-center mt-1 mb-5">
-          Señale del 1 al 5 el valor de la escala que más se identifique con su
-          opinión, donde 5 es el valor más alto y 1 el valor más bajo.
+  <div class="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+    <main class="w-full max-w-6xl">
+      <div class="mb-6">
+        <h1 class="text-center text-2xl font-semibold tracking-tight">Encuesta de Satisfacción</h1>
+        <p class="mt-1 text-center text-gray-600">
+          Para el <strong>ESTUDIO RODRÍGUEZ ANGOBALDO S.A.C.</strong> es importante conocer la opinión
+          de nuestros clientes; por ello elaboramos la presente encuesta de satisfacción, con el objetivo
+          de medir el nivel de compromiso, afianzar el vínculo e identificar oportunidades de mejora
+          para el fortalecimiento de los servicios que ofrecemos.
         </p>
-        <div
-          class="md:grid grid-cols-[3fr_4fr] gap-x-5 items-center text-xs text-gray-700 font-medium"
-        >
-          <div></div>
-          <div class="mt-2 md:mt-0 grid grid-cols-5 gap-2 md:gap-3">
-            <div class="text-center">
-              5<br /><span class="font-normal">Muy alto</span>
-            </div>
-            <div class="text-center">
-              4<br /><span class="font-normal">Alto</span>
-            </div>
-            <div class="text-center">
-              3<br /><span class="font-normal">Medio</span>
-            </div>
-            <div class="text-center">
-              2<br /><span class="font-normal">Bajo</span>
-            </div>
-            <div class="text-center">
-              1<br /><span class="font-normal">Muy bajo</span>
+        <ul class="mt-2 list-disc pl-6 text-sm text-gray-600">
+          <li>Esperamos se sientan en libertad de expresarse y evaluar desde su experiencia.</li>
+          <li>La información que nos proporcione es confidencial.</li>
+          <li>Gracias por su atención y por confiar en nosotros.</li>
+        </ul>
+      </div>
+
+      <form id="survey-form" class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <section class="grid gap-4 md:grid-cols-2">
+          <div class="flex flex-col gap-1">
+            <label for="company" class="text-sm font-medium"
+              >Cliente <span class="text-red-600">*</span></label
+            >
+            <input
+              id="company"
+              name="company"
+              type="text"
+              placeholder="Ej: Acme S.A."
+              required
+              class="h-11 rounded-xl border border-gray-300 px-3 focus:ring-4 focus:ring-gray-200 focus:outline-none"
+            />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="person" class="text-sm font-medium"
+              >Nombre del encuestado <span class="text-red-600">*</span></label
+            >
+            <input
+              id="person"
+              name="person"
+              type="text"
+              placeholder="Ej: María Pérez"
+              required
+              class="h-11 rounded-xl border border-gray-300 px-3 focus:ring-4 focus:ring-gray-200 focus:outline-none"
+            />
+          </div>
+        </section>
+
+        <section class="mt-6">
+          <h2 class="text-center text-sm font-semibold">EVALUACIÓN DE ASPECTOS DEL SERVICIO</h2>
+          <p class="mt-1 mb-5 text-center text-xs text-gray-600">
+            Señale del 1 al 5 el valor de la escala que más se identifique con su opinión, donde 5
+            es el valor más alto y 1 el valor más bajo.
+          </p>
+          <div
+            class="grid-cols-[3fr_4fr] items-center gap-x-5 text-xs font-medium text-gray-700 md:grid"
+          >
+            <div></div>
+            <div class="mt-2 grid grid-cols-5 gap-2 md:mt-0 md:gap-3">
+              <div class="text-center">
+                5<br /><span class="font-normal">Muy alto</span>
+              </div>
+              <div class="text-center">
+                4<br /><span class="font-normal">Alto</span>
+              </div>
+              <div class="text-center">
+                3<br /><span class="font-normal">Medio</span>
+              </div>
+              <div class="text-center">
+                2<br /><span class="font-normal">Bajo</span>
+              </div>
+              <div class="text-center">
+                1<br /><span class="font-normal">Muy bajo</span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="mt-2 divide-y">
-        {
-          questions.map((label, i) => (
-            <fieldset class="py-4">
-              <div class="md:grid grid-cols-[3fr_4fr] gap-x-5 items-center">
-                <legend class="text-sm text-gray-800">
-                  <span class="text-gray-500 mr-2">{i + 1}.</span>
-                  {label} <span class="text-red-600">*</span>
-                </legend>
-                <div class="mt-2 md:mt-0 grid grid-cols-5 gap-2 md:gap-3">
-                  {[5, 4, 3, 2, 1].map((val) => (
-                    <label class="relative flex items-center justify-center h-11 rounded-xl border cursor-pointer select-none border-gray-300 hover:border-gray-400">
-                      <input
-                        type="radio"
-                        name={`q${i + 1}`}
-                        value={val}
-                        required
-                        class="sr-only peer"
-                      />
-                      <span class="absolute inset-0 text-sm font-medium z-20 grid place-items-center peer-checked:text-white">{val}</span>
-                      <span class="absolute z-10 inset-0 rounded-xl bg-[#10466a] opacity-0 peer-checked:opacity-90 transition" />
-                    </label>
-                  ))}
+        <section class="mt-2 divide-y">
+          {
+            questions.map((label, i) => (
+              <fieldset class="py-4">
+                <div class="grid-cols-[3fr_4fr] items-center gap-x-5 md:grid">
+                  <legend class="text-sm text-gray-800">
+                    <span class="mr-2 text-gray-500">{i + 1}.</span>
+                    {label} <span class="text-red-600">*</span>
+                  </legend>
+                  <div class="mt-2 grid grid-cols-5 gap-2 md:mt-0 md:gap-3">
+                    {[5, 4, 3, 2, 1].map((val) => (
+                      <label class="relative flex h-11 cursor-pointer items-center justify-center rounded-xl border border-gray-300 select-none hover:border-gray-400">
+                        <input
+                          type="radio"
+                          name={`q${i + 1}`}
+                          value={val}
+                          required
+                          class="peer sr-only"
+                        />
+                        <span class="absolute inset-0 z-20 grid place-items-center text-sm font-medium peer-checked:text-white">
+                          {val}
+                        </span>
+                        <span class="absolute inset-0 z-10 rounded-xl bg-[#10466a] opacity-0 transition peer-checked:opacity-90" />
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </fieldset>
-          ))
-        }
-      </section>
+              </fieldset>
+            ))
+          }
+        </section>
 
-      <section class="mt-4">
-        <label for="comment" class="text-sm font-medium"
-          >Sugerencias de Mejora</label
-        >
-        <p class="text-xs text-gray-600">
-          Por favor, comparta cualquier comentario adicional o sugerencia sobre
-          cómo podríamos mejorar nuestros servicios.
-        </p>
-        <textarea
-          id="comment"
-          name="comment"
-          rows="4"
-          placeholder="Cuéntanos cómo podemos mejorar…"
-          class="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-200"
-        ></textarea>
-      </section>
+        <section class="mt-4">
+          <label for="comment" class="text-sm font-medium">Sugerencias de Mejora</label>
+          <p class="text-xs text-gray-600">
+            Por favor, comparta cualquier comentario adicional o sugerencia sobre cómo podríamos
+            mejorar nuestros servicios.
+          </p>
+          <textarea
+            id="comment"
+            name="comment"
+            rows="4"
+            placeholder="Cuéntanos cómo podemos mejorar…"
+            class="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-gray-200 focus:outline-none"
+          ></textarea>
+        </section>
 
-      <section class="mt-6 flex items-center justify-between gap-4">
-        <p class="text-sm text-gray-500">
-          Los campos marcados con <span class="text-red-600">*</span> son obligatorios.
-        </p>
-        <button
-          type="submit"
-          class="h-11 px-5 rounded-xl font-medium bg-gray-900 text-white hover:opacity-90 transition"
-          >Enviar (demo)</button
-        >
-      </section>
-    </form>
+        <section class="mt-6 flex items-center justify-between gap-4">
+          <p class="text-sm text-gray-500">
+            Los campos marcados con <span class="text-red-600">*</span> son obligatorios.
+          </p>
+          <button
+            type="submit"
+            class="h-11 rounded-xl bg-gray-900 px-5 font-medium text-white transition hover:opacity-90"
+            >Enviar (demo)</button
+          >
+        </section>
+      </form>
 
-    <div
-      id="demo-msg"
-      class="hidden mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-800"
-    >
-      Este es un prototipo estático. En la siguiente etapa conectaremos Firebase
-      (Firestore + App Check) y la lógica de tokens.
-    </div>
+      <div
+        id="demo-msg"
+        class="mt-4 hidden rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-800"
+      >
+        Este es un prototipo estático. En la siguiente etapa conectaremos Firebase (Firestore + App
+        Check) y la lógica de tokens.
+      </div>
 
-    <div class="text-center text-xs text-gray-500 mt-4">
-      v0 – Boceto UI (sin persistencia)
-    </div>
-  </main>
-
-  <script>
-    document?.getElementById('survey-form')?.addEventListener('submit', (e) => {
-      e.preventDefault()
-  const form = e.target as HTMLFormElement
-  const data = Object.fromEntries(new FormData(form).entries())
-  console.log('Demo payload', data)
-  document?.getElementById('demo-msg')?.classList.remove('hidden')
-  alert(
-        'Formulario de ejemplo enviado. Revisa la consola del navegador para ver los datos.',
-      )
-})
-  </script>
+      <div class="mt-4 text-center text-xs text-gray-500">v0 – Boceto UI (sin persistencia)</div>
+    </main>
+  </div>
 </Layout>
+
+<script>
+  document?.getElementById('survey-form')?.addEventListener('submit', (e) => {
+    e.preventDefault()
+    const form = e.target as HTMLFormElement
+    const data = Object.fromEntries(new FormData(form).entries())
+    console.log('Demo payload', data)
+    document?.getElementById('demo-msg')?.classList.remove('hidden')
+    alert('Formulario de ejemplo enviado. Revisa la consola del navegador para ver los datos.')
+  })
+</script>
