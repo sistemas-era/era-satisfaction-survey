@@ -4,7 +4,7 @@ import { getAuth } from 'firebase-admin/auth'
 
 export const prerender = false
 
-export const GET: APIRoute = async ({ request, cookies, redirect }) => {
+export const handler: APIRoute = async ({ request, cookies, redirect }) => {
   const auth = getAuth(app)
 
   const idToken = request.headers.get('Authorization')?.split('Bearer ')[1]
@@ -31,3 +31,6 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
 
   return redirect('/dashboard')
 }
+
+export const POST = handler
+export const GET = handler
