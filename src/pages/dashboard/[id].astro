@@ -1,0 +1,116 @@
+---
+import { app } from '../../firebase/server'
+import { getAuth } from 'firebase-admin/auth'
+import { getFirestore } from 'firebase-admin/firestore'
+import type { SatisfactionResponse } from '../../types/survey'
+import Layout from '../../layouts/layout.astro'
+import { QUESTIONS } from '../../constants'
+
+const auth = getAuth(app)
+const db = getFirestore(app)
+const { id } = Astro.params
+
+// 🔒 Validar sesión
+if (!Astro.cookies.has('__session')) {
+  return Astro.redirect('/signin')
+}
+const sessionCookie = Astro.cookies.get('__session')!.value
+const decoded = await auth.verifySessionCookie(sessionCookie).catch(() => null)
+if (!decoded) {
+  return Astro.redirect('/signin')
+}
+
+// 📄 Obtener la respuesta
+const docRef = db.collection('survey-responses').doc(id!)
+
+const snapshot = await docRef.get()
+
+if (!snapshot.exists) {
+  return Astro.redirect('/dashboard')
+}
+
+const response = { id: snapshot.id, ...snapshot.data() } as SatisfactionResponse
+const date =
+  response.createdAt?.toDate?.().toLocaleString('es-PE', {
+    dateStyle: 'full',
+    timeStyle: 'short',
+  }) ?? '—'
+
+// Calcular promedio
+const values = Object.values(response.ratings ?? {})
+const average =
+  values.length > 0 ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : '—'
+---
+
+<Layout title={`Respuesta de ${response.clientPerson}`}>
+  <main class="min-h-screen bg-slate-50 pb-10">
+    <!-- Navbar -->
+    <nav
+      class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 shadow-sm"
+    >
+      <a href="/dashboard" class="font-semibold text-[#10466a] hover:underline"> ← Volver </a>
+      <form action="/api/auth/signout" method="post">
+        <button
+          type="submit"
+          class="rounded-lg bg-[#10466a] px-4 py-2 font-medium text-white transition hover:bg-[#0d3b59] active:bg-[#082a40]"
+        >
+          Cerrar sesión
+        </button>
+      </form>
+    </nav>
+
+    <!-- Contenido -->
+    <section class="mx-6 mt-5 rounded-2xl border border-slate-200 bg-white p-8 px-6 shadow-md">
+      <header class="mb-6 border-b border-slate-200 pb-4">
+        <h1 class="text-2xl font-semibold text-[#10466a]">Detalle de respuesta</h1>
+        <p class="mt-1 text-sm text-slate-500">Fecha: {date}</p>
+      </header>
+
+      <div class="space-y-6 text-slate-700">
+        <div>
+          <h2 class="mb-1 text-sm font-medium text-slate-500 uppercase">Cliente</h2>
+          <p class="text-lg font-semibold">{response.clientCompany}</p>
+        </div>
+
+        <div>
+          <h2 class="mb-1 text-sm font-medium text-slate-500 uppercase">Encuestado</h2>
+          <p class="text-lg font-semibold">{response.clientPerson}</p>
+        </div>
+
+        <section class="space-y-4">
+          <h2 class="text-sm font-medium text-slate-500 uppercase">Puntuaciones</h2>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {
+              QUESTIONS.map(({ key, label }) => (
+                <div class="grid grid-cols-[auto_1fr] gap-x-5 rounded-lg border border-slate-200 bg-white p-4">
+                  <p class="mb-2 text-sm text-slate-600">{label}</p>
+                  <span class="inline-flex size-8 items-center justify-center rounded-full bg-[#10466a] font-semibold text-white">
+                    {response.ratings?.[key] ?? '—'}
+                  </span>
+                </div>
+              ))
+            }
+          </div>
+          <div class="mt-4 flex items-center justify-between border-t border-slate-200 pt-3">
+            <span class="text-sm text-slate-500">Promedio general:</span>
+            <span class="text-2xl font-bold text-[#10466a]">{average}</span>
+          </div>
+        </section>
+
+        <div>
+          <h2 class="mb-1 text-sm font-medium text-slate-500 uppercase">Sugerencias</h2>
+          <p
+            class="rounded-lg border border-slate-200 bg-slate-50 p-3 whitespace-pre-line text-slate-700"
+          >
+            {response.suggestions || '—'}
+          </p>
+        </div>
+
+        <div>
+          <h2 class="mb-1 text-sm font-medium text-slate-500 uppercase">User Agent</h2>
+          <p class="text-sm text-slate-600">{response.userAgent || '—'}</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>

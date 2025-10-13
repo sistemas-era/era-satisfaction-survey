@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/layout.astro'
-import { questions } from '../constants'
+import { QUESTIONS } from '../constants'
 ---
 
 <Layout title="Encuesta de Satisfacción">
@@ -29,7 +29,7 @@ import { questions } from '../constants'
             >
             <input
               id="company"
-              name="company"
+              name="clientCompany"
               type="text"
               placeholder="Ej: Acme S.A."
               required
@@ -42,7 +42,7 @@ import { questions } from '../constants'
             >
             <input
               id="person"
-              name="person"
+              name="clientPerson"
               type="text"
               placeholder="Ej: María Pérez"
               required
@@ -83,7 +83,7 @@ import { questions } from '../constants'
 
         <section class="mt-2 divide-y">
           {
-            questions.map((label, i) => (
+            QUESTIONS.map(({ key, label }, i) => (
               <fieldset class="py-4">
                 <div class="grid-cols-[3fr_4fr] items-center gap-x-5 md:grid">
                   <legend class="text-sm text-gray-800">
@@ -93,13 +93,7 @@ import { questions } from '../constants'
                   <div class="mt-2 grid grid-cols-5 gap-2 md:mt-0 md:gap-3">
                     {[5, 4, 3, 2, 1].map((val) => (
                       <label class="relative flex h-11 cursor-pointer items-center justify-center rounded-xl border border-gray-300 select-none hover:border-gray-400">
-                        <input
-                          type="radio"
-                          name={`q${i + 1}`}
-                          value={val}
-                          required
-                          class="peer sr-only"
-                        />
+                        <input type="radio" name={key} value={val} required class="peer sr-only" />
                         <span class="absolute inset-0 z-20 grid place-items-center text-sm font-medium peer-checked:text-white">
                           {val}
                         </span>
@@ -120,8 +114,8 @@ import { questions } from '../constants'
             mejorar nuestros servicios.
           </p>
           <textarea
-            id="comment"
-            name="comment"
+            id="suggestions"
+            name="suggestions"
             rows="4"
             placeholder="Cuéntanos cómo podemos mejorar…"
             class="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-gray-200 focus:outline-none"
@@ -154,12 +148,25 @@ import { questions } from '../constants'
 </Layout>
 
 <script>
-  document?.getElementById('survey-form')?.addEventListener('submit', (e) => {
+  const $form = document.querySelector('#survey-form') as HTMLFormElement
+
+  $form.addEventListener('submit', async (e) => {
     e.preventDefault()
-    const form = e.target as HTMLFormElement
-    const data = Object.fromEntries(new FormData(form).entries())
-    console.log('Demo payload', data)
-    document?.getElementById('demo-msg')?.classList.remove('hidden')
-    alert('Formulario de ejemplo enviado. Revisa la consola del navegador para ver los datos.')
+
+    const fd = new FormData($form)
+    const payload = Object.fromEntries(fd.entries())
+
+    const res = await fetch('/api/surveys/satisfaction', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    if (res.ok) {
+      alert('¡Gracias por tu respuesta!')
+      $form.reset()
+    } else {
+      alert('Error al enviar la encuesta.')
+    }
   })
 </script>

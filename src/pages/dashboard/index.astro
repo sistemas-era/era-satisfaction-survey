@@ -1,0 +1,107 @@
+---
+import { app } from '../../firebase/server'
+import { getAuth } from 'firebase-admin/auth'
+import Layout from '../../layouts/layout.astro'
+import { getFirestore } from 'firebase-admin/firestore'
+import type { SatisfactionResponse } from '../../types/survey'
+import type { Timestamp } from 'firebase/firestore'
+import { QUESTION_ORDER } from '../../constants'
+
+const auth = getAuth(app)
+const db = getFirestore(app)
+
+if (!Astro.cookies.has('__session')) {
+  return Astro.redirect('/signin')
+}
+const sessionCookie = Astro.cookies.get('__session')!.value
+const decodedCookie = await auth.verifySessionCookie(sessionCookie)
+const user = await auth.getUser(decodedCookie.uid)
+
+if (!user) {
+  return Astro.redirect('/signin')
+}
+
+const responses = await db
+  .collection('survey-responses')
+  .orderBy('createdAt', 'desc')
+  .get()
+  .then((snap) =>
+    snap.docs.map((doc) => {
+      const data = doc.data()
+
+      return {
+        id: doc.id,
+        clientCompany: data.clientCompany,
+        clientPerson: data.clientPerson,
+        ratings: data.ratings,
+        suggestions: data.suggestions,
+        createdAt: data.createdAt as Timestamp | undefined,
+      } as SatisfactionResponse
+    })
+  )
+---
+
+<Layout title="Dashboard">
+  <main class="min-h-screen bg-slate-50">
+    <nav
+      class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 shadow-sm"
+    >
+      <img src="/logo_era.png" alt="Logo" class="h-12 w-auto" />
+
+      <form action="/api/auth/signout" method="post">
+        <button
+          type="submit"
+          class="rounded-lg bg-[#10466a] px-4 py-2 font-medium text-white transition hover:bg-[#0d3b59] active:bg-[#082a40]"
+        >
+          Cerrar sesión
+        </button>
+      </form>
+    </nav>
+
+    <section class="px-6 py-10">
+      <h1 class="mb-6 text-2xl font-semibold text-slate-800">Respuestas de Encuesta</h1>
+
+      {
+        responses.length === 0 ? (
+          <p class="text-slate-500">No hay respuestas aún.</p>
+        ) : (
+          <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+            <table class="w-full border-collapse text-sm text-slate-700">
+              <thead class="bg-slate-100 text-xs font-medium text-slate-700 uppercase">
+                <tr>
+                  <th class="px-4 py-3 text-left">Cliente</th>
+                  <th class="px-4 py-3 text-left">Encuestado</th>
+                  <th class="px-4 py-3 text-left">Promedio</th>
+                  <th class="px-4 py-3 text-left">Sugerencias</th>
+                  <th class="px-4 py-3 text-left">Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {responses.map((r: SatisfactionResponse) => {
+                  const values = QUESTION_ORDER.map((k) => r.ratings?.[k] ?? 0)
+                  const avg = values.length
+                    ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
+                    : '-'
+                  return (
+                    <tr
+                      class="cursor-pointer transition even:bg-slate-50 hover:bg-slate-50"
+                      onclick={`window.location.href='/dashboard/${r.id}'`}
+                    >
+                      <td class="px-4 py-3 font-medium">{r.clientCompany}</td>
+                      <td class="px-4 py-3">{r.clientPerson}</td>
+                      <td class="px-4 py-3 text-center">{avg}</td>
+                      <td class="max-w-[300px] truncate px-4 py-3" title={r.suggestions}>
+                        {r.suggestions || '—'}
+                      </td>
+                      <td class="px-4 py-3 text-sm text-slate-500">{/* fecha aquí */}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
+      }
+    </section>
+  </main>
+</Layout>
