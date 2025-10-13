@@ -16,9 +16,6 @@ const serviceAccount = {
 }
 
 const initApp = () => {
-  console.log('[firebase-admin] Initializing Firebase Admin SDK')
-  console.log(`[firebase-admin] Project ID: ${FIREBASE_PROJECT_ID}`)
-
   return initializeApp({
     credential: cert(serviceAccount as ServiceAccount),
   })
