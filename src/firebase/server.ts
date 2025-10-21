@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import type { ServiceAccount } from 'firebase-admin'
 import { initializeApp, cert, getApps } from 'firebase-admin/app'
 

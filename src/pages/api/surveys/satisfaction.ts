@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro'
-import { getFirestore, FieldValue } from 'firebase-admin/firestore'
+import { getFirestore } from 'firebase-admin/firestore'
 import { app } from '../../../firebase/server'
 import type { SatisfactionResponse } from '../../../types/survey'
 
@@ -35,6 +35,7 @@ export const POST: APIRoute = async ({ request }) => {
   const doc = {
     clientCompany: body.clientCompany,
     clientPerson: body.clientPerson,
+    group: body.group ? String(body.group) : 'General',
     ratings: {
       q1: Number(body.q1),
       q2: Number(body.q2),
@@ -45,7 +46,7 @@ export const POST: APIRoute = async ({ request }) => {
       q7: Number(body.q7),
     },
     suggestions: body.suggestions ?? '',
-    createdAt: FieldValue.serverTimestamp(),
+    createdAt: new Date().toISOString(),
     userAgent: request.headers.get('user-agent') ?? '',
   }
 

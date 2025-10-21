@@ -4,7 +4,6 @@ import { getAuth } from 'firebase-admin/auth'
 import Layout from '../../layouts/layout.astro'
 import { getFirestore } from 'firebase-admin/firestore'
 import type { SatisfactionResponse } from '../../types/survey'
-import type { Timestamp } from 'firebase/firestore'
 import { QUESTION_ORDER } from '../../constants'
 
 const auth = getAuth(app)
@@ -35,7 +34,8 @@ const responses = await db
         clientPerson: data.clientPerson,
         ratings: data.ratings,
         suggestions: data.suggestions,
-        createdAt: data.createdAt as Timestamp | undefined,
+        createdAt: data.createdAt as string | undefined,
+        group: data.group as string,
       } as SatisfactionResponse
     })
   )
@@ -72,8 +72,7 @@ const responses = await db
                   <th class="px-4 py-3 text-left">Cliente</th>
                   <th class="px-4 py-3 text-left">Encuestado</th>
                   <th class="px-4 py-3 text-left">Promedio</th>
-                  <th class="px-4 py-3 text-left">Sugerencias</th>
-                  <th class="px-4 py-3 text-left">Fecha</th>
+                  <th class="px-4 py-3 text-left">Unidad de negocio</th>
                 </tr>
               </thead>
               <tbody>
@@ -90,10 +89,7 @@ const responses = await db
                       <td class="px-4 py-3 font-medium">{r.clientCompany}</td>
                       <td class="px-4 py-3">{r.clientPerson}</td>
                       <td class="px-4 py-3 text-center">{avg}</td>
-                      <td class="max-w-[300px] truncate px-4 py-3" title={r.suggestions}>
-                        {r.suggestions || '—'}
-                      </td>
-                      <td class="px-4 py-3 text-sm text-slate-500">{/* fecha aquí */}</td>
+                      <td class="px-4 py-3">{r.group}</td>
                     </tr>
                   )
                 })}
