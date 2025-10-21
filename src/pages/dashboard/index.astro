@@ -51,7 +51,7 @@ const responses = await db
       <form action="/api/auth/signout" method="post">
         <button
           type="submit"
-          class="rounded-lg bg-[#10466a] px-4 py-2 font-medium text-white transition hover:bg-[#0d3b59] active:bg-[#082a40]"
+          class="bg-primary rounded-lg px-4 py-2 text-sm text-white uppercase transition hover:bg-[#0d3b59] active:bg-[#082a40]"
         >
           Cerrar sesión
         </button>
@@ -59,7 +59,15 @@ const responses = await db
     </nav>
 
     <section class="px-6 py-10">
-      <h1 class="mb-6 text-2xl font-semibold text-slate-800">Respuestas de Encuesta</h1>
+      <div class="mb-6 flex items-center justify-between">
+        <h1 class="mb-6 text-2xl font-semibold text-slate-800">Respuestas de Encuesta</h1>
+        <button
+          onclick="window.location.href='/api/surveys/export'"
+          class="bg-primary cursor-pointer rounded-lg px-4 py-2 text-sm text-white uppercase transition hover:bg-[#0d3b59] active:bg-[#082a40]"
+        >
+          Exportar respuestas
+        </button>
+      </div>
 
       {
         responses.length === 0 ? (
