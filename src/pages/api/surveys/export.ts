@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro'
 import { getFirestore } from 'firebase-admin/firestore'
 import type { SatisfactionResponse } from '../../../types/survey'
 import { app } from '../../../firebase/server'
+import ExcelJS from 'exceljs'
 
 export const GET: APIRoute = async () => {
   const db = getFirestore(app)
@@ -19,10 +20,27 @@ export const GET: APIRoute = async () => {
     )
   }
 
+  const workbook = new ExcelJS.Workbook()
+  const sheet = workbook.addWorksheet('Encuesta')
+
+  sheet.columns = [
+    { header: 'Empresa', key: 'clientCompany',  },
+    { header: 'Encargado Empresa', key: 'clientPerson', width: 25 },
+    { header: 'Unidad de negocio', key: 'group', width: 20 },
+    { header: 'q1', key: 'q1', width: 10 },
+    { header: 'q2', key: 'q2', width: 10 },
+    { header: 'q3', key: 'q3', width: 10 },
+    { header: 'q4', key: 'q4', width: 10 },
+    { header: 'q5', key: 'q5', width: 10 },
+    { header: 'q6', key: 'q6', width: 10 },
+    { header: 'q7', key: 'q7', width: 10 },
+    { header: 'Sugerencias', key: 'suggestions', width: 40 },
+    { header: 'Fecha envío', key: 'createdAt', width: 30 },
+  ]
+
   const docs = snapshot.docs.map((d) => {
     const raw = d.data()
 
-    // createdAt puede ser Timestamp o string
     const createdAt =
       typeof raw.createdAt === 'string'
         ? raw.createdAt
@@ -33,7 +51,6 @@ export const GET: APIRoute = async () => {
     const ratings = raw.ratings ?? {}
 
     return {
-      id: d.id,
       clientCompany: raw.clientCompany ?? '',
       clientPerson: raw.clientPerson ?? '',
       group: raw.group ?? '',
@@ -45,41 +62,28 @@ export const GET: APIRoute = async () => {
       q6: ratings.q6 ?? '',
       q7: ratings.q7 ?? '',
       suggestions: raw.suggestions ?? '',
-      createdAt, // string ISO
-      // 🚫 userAgent intencionalmente NO se incluye
+      createdAt
     }
   })
 
-  // --- CSV ---
-  const headers = [
-    'id',
-    'clientCompany',
-    'clientPerson',
-    'group',
-    'q1',
-    'q2',
-    'q3',
-    'q4',
-    'q5',
-    'q6',
-    'q7',
-    'suggestions',
-    'createdAt',
-  ] as const
+  docs.forEach((row) => {
+    const r = sheet.addRow({
+      ...row,
+      createdAt: row.createdAt ? new Date(row.createdAt) : null
+    })
 
-  const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    r.getCell('suggestions').alignment = { wrapText: true }
 
-  const rows = docs.map((row) => headers.map((h) => esc(row[h as keyof typeof row])).join(','))
-
-  // BOM para que Excel detecte UTF-8
-  const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n')
-
-  return new Response(csv, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="encuesta_satisfaccion.csv"',
-      'Cache-Control': 'no-store',
-    },
+    r.getCell('createdAt').numFmt = 'yyyy-mm-dd hh:mm:ss AM/PM'
   })
+
+  const buffer = await workbook.xlsx.writeBuffer()
+
+  return new Response(buffer, {
+  headers: {
+    'Content-Type':
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'Content-Disposition': 'attachment; filename="encuesta.xlsx"',
+  },
+})
 }
