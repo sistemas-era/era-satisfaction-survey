@@ -1,11 +1,37 @@
 import { defineMiddleware } from 'astro:middleware'
+import { verifyToken } from './lib/auth'
 
-export const onRequest = defineMiddleware(async (context, next) => {
-  const response = await next()
+export const onRequest = defineMiddleware(
+  async (context, next) => {
+    const pathname = context.url.pathname
 
-  if (response.status === 404) {
-    return Response.redirect(new URL('/', context.request.url), 302)
+    const protectedRoutes = [
+      '/dashboard',
+    ]
+
+    const isProtected = protectedRoutes.some((r) =>
+      pathname.startsWith(r)
+    )
+
+    if (!isProtected) {
+      return next()
+    }
+
+    const token =
+      context.cookies.get('token')?.value
+
+    if (!token) {
+      return context.redirect('/login')
+    }
+
+    const payload = verifyToken(token)
+
+    if (!payload) {
+      context.cookies.delete('token')
+
+      return context.redirect('/login')
+    }
+
+    return next()
   }
-
-  return response
-})
+)

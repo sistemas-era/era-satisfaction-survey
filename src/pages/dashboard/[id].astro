@@ -1,35 +1,21 @@
 ---
-import { app } from '../../firebase/server'
-import { getAuth } from 'firebase-admin/auth'
-import { getFirestore } from 'firebase-admin/firestore'
-import type { SatisfactionResponse } from '../../types/survey'
-import Layout from '../../layouts/layout.astro'
-import { QUESTIONS } from '../../constants'
+import Layout from '@/layouts/layout.astro'
+import DashboardNavbar from '@/components/dashboard-navbar.astro'
+import { QUESTIONS } from '@/constants'
+import { getSurveyResponseById } from '@/repositories/survey.repository'
 
-const auth = getAuth(app)
-const db = getFirestore(app)
 const { id } = Astro.params
 
-// 🔒 Validar sesión
-if (!Astro.cookies.has('__session')) {
-  return Astro.redirect('/signin')
-}
-const sessionCookie = Astro.cookies.get('__session')!.value
-const decoded = await auth.verifySessionCookie(sessionCookie).catch(() => null)
-if (!decoded) {
-  return Astro.redirect('/signin')
-}
-
-// 📄 Obtener la respuesta
-const docRef = db.collection('survey-responses').doc(id!)
-
-const snapshot = await docRef.get()
-
-if (!snapshot.exists) {
+if (!id) {
   return Astro.redirect('/dashboard')
 }
 
-const response = { id: snapshot.id, ...snapshot.data() } as SatisfactionResponse
+const response = getSurveyResponseById(Number(id))
+
+if (!response) {
+  return Astro.redirect('/dashboard')
+}
+
 const date = response.createdAt
   ? new Date(response.createdAt).toLocaleString('es-PE', {
       dateStyle: 'full',
@@ -37,30 +23,21 @@ const date = response.createdAt
     })
   : '—'
 
-// Calcular promedio
 const values = Object.values(response.ratings ?? {})
+
 const average =
-  values.length > 0 ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : '—'
+  values.length > 0
+    ? (
+        values.reduce((a, b) => a + b, 0) /
+        values.length
+      ).toFixed(2)
+    : '—'
 ---
 
 <Layout title={`Respuesta de ${response.clientPerson}`}>
   <main class="min-h-screen bg-slate-50 pb-10">
-    <!-- Navbar -->
-    <nav
-      class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 shadow-sm"
-    >
-      <a href="/dashboard" class="font-semibold text-[#10466a] hover:underline"> ← Volver </a>
-      <form action="/api/auth/signout" method="post">
-        <button
-          type="submit"
-          class="rounded-lg bg-[#10466a] px-4 py-2 font-medium text-white transition hover:bg-[#0d3b59] active:bg-[#082a40]"
-        >
-          Cerrar sesión
-        </button>
-      </form>
-    </nav>
+    <DashboardNavbar backHref="/dashboard"/>
 
-    <!-- Contenido -->
     <section class="mx-6 mt-5 rounded-2xl border border-slate-200 bg-white p-8 px-6 shadow-md">
       <header class="mb-6 border-b border-slate-200 pb-4">
         <h1 class="text-2xl font-semibold text-[#10466a]">Detalle de respuesta</h1>
@@ -109,11 +86,6 @@ const average =
           >
             {response.suggestions || '—'}
           </p>
-        </div>
-
-        <div>
-          <h2 class="mb-1 text-sm font-medium text-slate-500 uppercase">User Agent</h2>
-          <p class="text-sm text-slate-600">{response.userAgent || '—'}</p>
         </div>
       </div>
     </section>

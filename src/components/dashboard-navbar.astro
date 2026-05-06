@@ -1,0 +1,52 @@
+---
+interface Props {
+  backHref?: string
+}
+
+const { backHref } = Astro.props
+---
+
+<nav
+  class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 shadow-sm"
+>
+  {
+    backHref ? (
+      <a
+        href={backHref}
+        class="font-semibold text-[#10466a] hover:underline"
+      >
+        ← Volver
+      </a>
+    ) : (
+      <img
+        src="/logo_era.png"
+        alt="Logo"
+        class="h-12 w-auto"
+      />
+    )
+  }
+
+  <button
+    id="logoutBtn"
+    type="button"
+    class="bg-primary rounded-lg px-4 py-2 text-sm uppercase text-white transition hover:bg-[#0d3b59] active:bg-[#082a40]"
+  >
+    Cerrar sesión
+  </button>
+</nav>
+
+<script>
+  const logoutBtn =
+    document.querySelector('#logoutBtn')
+
+  logoutBtn?.addEventListener(
+    'click',
+    async () => {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+      })
+
+      window.location.href = '/login'
+    }
+  )
+</script>

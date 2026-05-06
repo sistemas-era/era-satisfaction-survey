@@ -1,21 +1,15 @@
 import type { APIRoute } from 'astro'
-import { getFirestore } from 'firebase-admin/firestore'
-import type { SatisfactionResponse } from '../../../types/survey'
-import { app } from '../../../firebase/server'
 import ExcelJS from 'exceljs'
+import { getAllSurveyResponses } from '@/repositories/survey.repository'
 
 export const GET: APIRoute = async () => {
-  const db = getFirestore(app)
-  const snapshot = await db.collection('survey-responses').orderBy('createdAt', 'desc').get()
-
-  const responses = snapshot.docs.map((d) => ({
-    id: d.id,
-    ...d.data(),
-  })) as SatisfactionResponse[]
+  const responses = getAllSurveyResponses()
 
   if (responses.length === 0) {
     return new Response(
-      JSON.stringify({ message: 'No hay respuestas de encuestas para exportar.' }),
+      JSON.stringify({
+        message: 'No hay respuestas de encuestas para exportar.',
+      }),
       { status: 404 }
     )
   }
@@ -24,7 +18,7 @@ export const GET: APIRoute = async () => {
   const sheet = workbook.addWorksheet('Encuesta')
 
   sheet.columns = [
-    { header: 'Empresa', key: 'clientCompany',  },
+    { header: 'Empresa', key: 'clientCompany', width: 25 },
     { header: 'Encargado Empresa', key: 'clientPerson', width: 25 },
     { header: 'Unidad de negocio', key: 'group', width: 20 },
     { header: 'q1', key: 'q1', width: 10 },
@@ -38,52 +32,38 @@ export const GET: APIRoute = async () => {
     { header: 'Fecha envío', key: 'createdAt', width: 30 },
   ]
 
-  const docs = snapshot.docs.map((d) => {
-    const raw = d.data()
-
-    const createdAt =
-      typeof raw.createdAt === 'string'
-        ? raw.createdAt
-        : raw.createdAt?.toDate?.()
-          ? raw.createdAt.toDate().toISOString()
-          : ''
-
-    const ratings = raw.ratings ?? {}
-
-    return {
-      clientCompany: raw.clientCompany ?? '',
-      clientPerson: raw.clientPerson ?? '',
-      group: raw.group ?? '',
-      q1: ratings.q1 ?? '',
-      q2: ratings.q2 ?? '',
-      q3: ratings.q3 ?? '',
-      q4: ratings.q4 ?? '',
-      q5: ratings.q5 ?? '',
-      q6: ratings.q6 ?? '',
-      q7: ratings.q7 ?? '',
-      suggestions: raw.suggestions ?? '',
-      createdAt
-    }
-  })
-
-  docs.forEach((row) => {
+  responses.forEach((row) => {
     const r = sheet.addRow({
-      ...row,
-      createdAt: row.createdAt ? new Date(row.createdAt) : null
+      clientCompany: row.clientCompany,
+      clientPerson: row.clientPerson,
+      group: row.group,
+      q1: row.ratings.q1,
+      q2: row.ratings.q2,
+      q3: row.ratings.q3,
+      q4: row.ratings.q4,
+      q5: row.ratings.q5,
+      q6: row.ratings.q6,
+      q7: row.ratings.q7,
+      suggestions: row.suggestions ?? '',
+      createdAt: row.createdAt ? new Date(row.createdAt) : null,
     })
 
-    r.getCell('suggestions').alignment = { wrapText: true }
+    r.getCell('suggestions').alignment = {
+      wrapText: true,
+    }
 
-    r.getCell('createdAt').numFmt = 'yyyy-mm-dd hh:mm:ss AM/PM'
+    r.getCell('createdAt').numFmt =
+      'yyyy-mm-dd hh:mm:ss AM/PM'
   })
 
   const buffer = await workbook.xlsx.writeBuffer()
 
   return new Response(buffer, {
-  headers: {
-    'Content-Type':
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'Content-Disposition': 'attachment; filename="encuesta.xlsx"',
-  },
-})
+    headers: {
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition':
+        'attachment; filename="encuesta.xlsx"',
+    },
+  })
 }

@@ -1,62 +1,16 @@
 ---
-import { app } from '../../firebase/server'
-import { getAuth } from 'firebase-admin/auth'
-import Layout from '../../layouts/layout.astro'
-import { getFirestore } from 'firebase-admin/firestore'
-import type { SatisfactionResponse } from '../../types/survey'
-import { QUESTION_ORDER } from '../../constants'
+import Layout from '@/layouts/layout.astro'
+import DashboardNavbar from '@/components/dashboard-navbar.astro'
+import type { SurveyResponse } from '@/types/survey'
+import { QUESTION_ORDER } from '@/constants'
+import { getAllSurveyResponses } from '@/repositories/survey.repository'
 
-const auth = getAuth(app)
-const db = getFirestore(app)
-
-if (!Astro.cookies.has('__session')) {
-  return Astro.redirect('/signin')
-}
-const sessionCookie = Astro.cookies.get('__session')!.value
-const decodedCookie = await auth.verifySessionCookie(sessionCookie)
-const user = await auth.getUser(decodedCookie.uid)
-
-if (!user) {
-  return Astro.redirect('/signin')
-}
-
-const responses = await db
-  .collection('survey-responses')
-  .orderBy('createdAt', 'desc')
-  .get()
-  .then((snap) =>
-    snap.docs.map((doc) => {
-      const data = doc.data()
-
-      return {
-        id: doc.id,
-        clientCompany: data.clientCompany,
-        clientPerson: data.clientPerson,
-        ratings: data.ratings,
-        suggestions: data.suggestions,
-        createdAt: data.createdAt as string | undefined,
-        group: data.group as string,
-      } as SatisfactionResponse
-    })
-  )
+const responses = getAllSurveyResponses()
 ---
 
 <Layout title="Dashboard">
   <main class="min-h-screen bg-slate-50">
-    <nav
-      class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 shadow-sm"
-    >
-      <img src="/logo_era.png" alt="Logo" class="h-12 w-auto" />
-
-      <form action="/api/auth/signout" method="post">
-        <button
-          type="submit"
-          class="bg-primary rounded-lg px-4 py-2 text-sm text-white uppercase transition hover:bg-[#0d3b59] active:bg-[#082a40]"
-        >
-          Cerrar sesión
-        </button>
-      </form>
-    </nav>
+    <DashboardNavbar />
 
     <section class="px-6 py-10">
       <div class="mb-6 flex items-center justify-between">
@@ -84,7 +38,7 @@ const responses = await db
                 </tr>
               </thead>
               <tbody>
-                {responses.map((r: SatisfactionResponse) => {
+                {responses.map((r: SurveyResponse) => {
                   const values = QUESTION_ORDER.map((k) => r.ratings?.[k] ?? 0)
                   const avg = values.length
                     ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)

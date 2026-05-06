@@ -1,14 +1,13 @@
 ---
-import { app } from '../firebase/server'
-import { getAuth } from 'firebase-admin/auth'
 import Layout from '../layouts/layout.astro'
+import { verifyToken } from '@/lib/auth'
 
-const auth = getAuth(app)
+const token = Astro.cookies.get('token')?.value
 
-if (Astro.cookies.has('__session')) {
-  const sessionCookie = Astro.cookies.get('__session')!.value
-  const decodedCookie = await auth.verifySessionCookie(sessionCookie)
-  if (decodedCookie) {
+if (token) {
+  const payload = verifyToken(token)
+
+  if (payload) {
     return Astro.redirect('/dashboard')
   }
 }
@@ -83,56 +82,63 @@ if (Astro.cookies.has('__session')) {
 </Layout>
 
 <script>
-  import { getAuth, inMemoryPersistence, signInWithEmailAndPassword } from 'firebase/auth'
-  import { app } from '../firebase/client'
-
-  const auth = getAuth(app)
-
-  auth.setPersistence(inMemoryPersistence)
-
   const $form = document.querySelector('form') as HTMLFormElement
   const $submitBtn = document.querySelector('#submitBtn') as HTMLButtonElement
   const $formError = document.querySelector('#formError') as HTMLParagraphElement
-  const $spinner = $submitBtn.querySelector('[data-spinner]') as HTMLElement
-  const $label = $submitBtn.querySelector('[data-label]') as HTMLElement
+  const $spinner = $submitBtn.querySelector('[data-spinner]') as SVGAElement
+  const $label = $submitBtn.querySelector('[data-label]') as HTMLSpanElement
 
   const setLoading = (isLoading: boolean) => {
     $form.setAttribute('aria-busy', String(isLoading))
     $submitBtn.disabled = isLoading
     $spinner.classList.toggle('hidden', !isLoading)
-    $label.textContent = isLoading ? 'Ingresando…' : 'Ingresar'
+    $label.textContent = isLoading
+      ? 'Ingresando…'
+      : 'Ingresar'
   }
 
   $form.addEventListener('submit', async (e) => {
     e.preventDefault()
+
     setLoading(true)
+
     $formError.classList.add('hidden')
     $formError.textContent = ''
 
     try {
       const formData = new FormData($form)
-      const email = formData.get('email')?.toString()
-      const password = formData.get('password')?.toString()
 
-      if (!email || !password) {
-        return
-      }
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      const idToken = await userCredential.user.getIdToken()
-      const response = await fetch('/api/auth/signin', {
-        method: 'GET',
+      const email = formData.get('email')
+      const password = formData.get('password')
+
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       })
 
-      if (response.redirected) {
-        window.location.assign(response.url)
+      if (!response.ok) {
+        const data = await response.json()
+
+        throw new Error(
+          data.error || 'Error al iniciar sesión'
+        )
       }
+
+      window.location.assign('/dashboard')
     } catch (error) {
-      console.error('Error during sign-in', error)
+      console.error(error)
+
       $formError.textContent =
-        'Error al iniciar sesión. Por favor, verifica tus credenciales e intenta nuevamente.'
+        error instanceof Error
+          ? error.message
+          : 'Error al iniciar sesión'
+
       $formError.classList.remove('hidden')
     } finally {
       setLoading(false)

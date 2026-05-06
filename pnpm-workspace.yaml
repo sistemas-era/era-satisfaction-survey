@@ -1,6 +1,2 @@
 onlyBuiltDependencies:
-  - '@firebase/util'
-  - '@tailwindcss/oxide'
-  - esbuild
-  - protobufjs
-  - sharp
+  - better-sqlite3
