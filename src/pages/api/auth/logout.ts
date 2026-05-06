@@ -1,13 +1,12 @@
 import type { APIRoute } from 'astro'
 
-export const POST: APIRoute = async ({
+export const GET: APIRoute = async ({
   cookies,
+  redirect
 }) => {
   cookies.delete('token', {
     path: '/',
   })
 
-  return new Response(null, {
-    status: 204,
-  })
+  return redirect('/login')
 }
